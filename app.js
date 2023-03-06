@@ -65,8 +65,32 @@ expressAppInstance.post('/register/', async(request, response)=>{
         response.status(400);
         response.send('User already exists')
     }
-
-
-
-
 })
+
+//API - 2 loginUser
+
+expressAppInstance.post('/login/', async(request, response)=>{
+    const {username, password} = request.body;
+
+    const userObjectQuery = `SELECT * FROM user WHERE username like "${username}"`;
+
+    const userObject = await databaseConnectionObject.get(userObjectQuery);
+
+    if (userObject === undefined){
+        //invalid user. 
+        response.status(400);
+        response.send('Invalid user')
+    }else{
+        //valid user. Verify password
+        const isPasswordsSame = await bcrypt.compare(password, userObject.password)
+        if(isPasswordsSame){
+            response.send('Login success!')
+        }else{
+            response.status(400)
+            response.send("Invalid password")
+        }
+    }
+})
+
+
+module.exports = expressAppInstance;
