@@ -17,6 +17,15 @@ Content-Type: application/json
 
 {
     "username": "Rajan123",
-    "password": "RajanSonia"
+    "password": "SoniaRajan"
 }
 ###
+
+PUT http://localhost:3000/change-password/
+Content-Type: application/json
+
+{
+  "username": "Rajan123",
+  "oldPassword": "RajanSonia",
+  "newPassword": "SoniaRajan"
+}

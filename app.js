@@ -93,4 +93,44 @@ expressAppInstance.post('/login/', async(request, response)=>{
 })
 
 
+//API-3 changePassword
+
+expressAppInstance.put('/change-password/', async(request, response)=>{
+    const {username, oldPassword, newPassword} = request.body;
+
+    //check1 isUserName in userDatabase
+    //check2 isOldPassword matching the records 
+    // if check1 and check2 passed, check newPasswordLength
+    //if length is less than 5 reject password change request
+    //if length is more than 5 approve password change request
+
+
+    const userObjectQuery = `SELECT * FROM user WHERE username like "${username}"`
+    const userObject = await databaseConnectionObject.get(userObjectQuery)
+    
+    if (userObject === undefined){
+        response.status(400);
+        response.send('Invalid user')
+    }else{
+        //check if passwords are matching
+        const isPasswordsMatching = await bcrypt.compare(oldPassword, userObject.password)
+        if(isPasswordsMatching){
+            if(newPassword.length<5){
+                response.status(400)
+                response.send('Password is too short')
+            }else{
+                const newPasswordHash = await bcrypt.hash(newPassword, 10);
+                const updatePasswordQuery = `UPDATE user SET password = "${newPasswordHash}" WHERE username like "${username}"`
+                await databaseConnectionObject.run(updatePasswordQuery)
+                response.send('Password updated')
+                //Valid password. encrypt the newPassword and update it in user records
+            }
+        }else{
+            response.status(400)
+            response.send('Invalid current password')
+        }
+        
+    }
+})
+
 module.exports = expressAppInstance;
